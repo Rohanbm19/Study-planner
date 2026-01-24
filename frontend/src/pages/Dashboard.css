@@ -1,0 +1,98 @@
+.dashboard {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 20px;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header button {
+  background: crimson;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.progress-section {
+  margin: 15px 0;
+}
+
+.progress-bar {
+  height: 10px;
+  background: #ddd;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.progress-bar div {
+  height: 100%;
+  background: linear-gradient(90deg, #4caf50, #81c784);
+  transition: width 0.4s ease;
+}
+
+.card {
+  background: white;
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.form {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr auto;
+  gap: 10px;
+}
+
+.form input {
+  padding: 6px;
+}
+
+.form button {
+  background: #2196f3;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.ai-btn {
+  margin-top: 10px;
+  background: #673ab7;
+  color: white;
+  border: none;
+  padding: 8px;
+  width: 100%;
+  cursor: pointer;
+}
+
+.plans {
+  list-style: none;
+  padding: 0;
+}
+
+.plans li {
+  display: flex;
+  justify-content: space-between;
+  background: white;
+  padding: 10px;
+  margin-bottom: 8px;
+  border-left: 4px solid #2196f3;
+}
+
+.plans li.done {
+  opacity: 0.6;
+  text-decoration: line-through;
+  border-left-color: #4caf50;
+}
+
+.plans button {
+  background: #4caf50;
+  color: white;
+  border: none;
+  padding: 4px 10px;
+  cursor: pointer;
+}
