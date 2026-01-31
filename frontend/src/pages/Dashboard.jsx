@@ -1,60 +1,112 @@
 import { useState } from "react";
-import axios from "axios";
+import { generateAIPlan } from "../api/api";
+import "./Dashboard.css";
 
 export default function Dashboard() {
   const [topic, setTopic] = useState("");
-  const [plan, setPlan] = useState("");
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const generate = async () => {
+    if (!topic.trim()) {
+      setError("Please enter a topic");
+      return;
+    }
+
     try {
+      setLoading(true);
       setError("");
-      setPlan("");
+      setRows([]);
 
-      // ✅ GET TOKEN FROM LOCAL STORAGE
-      const token = localStorage.getItem("token");
+      const res = await generateAIPlan(topic);
+      const rawText = res.data.planText || res.data.plan;
 
-      if (!token) {
-        setError("You are not logged in");
+      // -------- CLEAN --------
+      const cleaned = rawText
+        .replace(/\*\*/g, "")
+        .replace(/^- /gm, "")
+        .trim();
+
+      // -------- SPLIT WEEKS --------
+      const weekBlocks = cleaned.match(/Week \d+:[\s\S]*?(?=Week \d+:|$)/g);
+
+      if (!weekBlocks) {
+        setError("AI response format invalid. Try again.");
         return;
       }
 
-      // ✅ CALL BACKEND WITH AUTH HEADER
-      const res = await axios.post(
-        "http://localhost:5000/api/ai/plan",
-        { topic },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const parsed = weekBlocks.map((block, index) => {
+        const getValue = (label) => {
+          const line = block
+            .split("\n")
+            .find((l) => l.toLowerCase().startsWith(label));
+          return line ? line.split(":").slice(1).join(":").trim() : "";
+        };
 
-      // ✅ SET PLAN
-      setPlan(res.data.plan);
+        return {
+          week: `Week ${index + 1}`,
+          topic: getValue("topic"),
+          subtopics: getValue("subtopics"),
+          tasks: getValue("daily tasks"),
+          hours: getValue("hours"),
+        };
+      });
+
+      setRows(parsed);
     } catch (err) {
-      console.error(err.response?.data || err.message);
+      console.error(err);
       setError("Failed to generate plan");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>AI Study Planner</h2>
+    <div className="dashboard-page">
+      <div className="dashboard-card">
+        <h1 className="dashboard-title">📘 AI Study Planner</h1>
 
-      <input
-        value={topic}
-        onChange={(e) => setTopic(e.target.value)}
-        placeholder="Enter topic"
-      />
+        <div className="input-row">
+          <input
+            value={topic}
+            onChange={(e) => setTopic(e.target.value)}
+            placeholder="Enter topic (React, DBMS, Maths)"
+          />
+          <button onClick={generate} disabled={loading}>
+            {loading ? "Generating..." : "Generate Plan"}
+          </button>
+        </div>
 
-      <br />
-      <br />
+        {error && <p className="dashboard-error">{error}</p>}
 
-      <button onClick={generate}>Generate AI Plan</button>
-
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {plan && <pre>{plan}</pre>}
+        {rows.length > 0 && (
+          <div className="plan-table-wrapper">
+            <table className="plan-table">
+              <thead>
+                <tr>
+                  <th>Week</th>
+                  <th>Topic</th>
+                  <th>Subtopics</th>
+                  <th>Daily Tasks</th>
+                  <th>Hours / Day</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row, i) => (
+                  <tr key={i}>
+                    <td>{row.week}</td>
+                    <td>{row.topic}</td>
+                    <td>{row.subtopics}</td>
+                    <td>{row.tasks}</td>
+                    <td>{row.hours}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
