@@ -1,13 +1,14 @@
 const express = require("express");
-const Groq = require("groq-sdk");
-
 const router = express.Router();
+const auth = require("../middleware/authMiddleware");
+const Plan = require("../models/Plan");
+const Groq = require("groq-sdk");
 
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
 });
 
-router.post("/plan", async (req, res) => {
+router.post("/plan", auth, async (req, res) => {
   try {
     const { topic } = req.body;
 
@@ -15,22 +16,40 @@ router.post("/plan", async (req, res) => {
       return res.status(400).json({ msg: "Topic is required" });
     }
 
+    // 🔹 1. Generate plan from Groq
     const completion = await groq.chat.completions.create({
-      model: "llama-3.1-8b-instant", // ✅ VALID MODEL
+      model: "llama-3.1-8b-instant",
       messages: [
         {
           role: "user",
-          content: `Create a 3-day study plan with time slots for: ${topic}`,
+          content: `Create a detailed study plan for ${topic}`,
         },
       ],
     });
 
-    res.json({
-      plan: completion.choices[0].message.content,
+    const planText = completion.choices[0].message.content;
+
+    // 🔹 2. SAVE TO DATABASE (THIS WAS BROKEN BEFORE)
+    const plan = await Plan.create({
+      userId: req.userId,   // ✅ REQUIRED
+      topic,         // ✅ REQUIRED
+      planText,   // ✅ REQUIRED
     });
-  } catch (error) {
-    console.error("AI ERROR:", error);
-    res.status(500).json({ msg: "AI generation failed" });
+
+    const savedPlan = await Plan.create({
+  userId: req.userId,
+  topic,
+  planText,
+});
+
+console.log("✅ PLAN SAVED:", savedPlan._id);
+
+
+    // 🔹 3. Send response
+    res.json({ plan: planText });
+  } catch (err) {
+    console.error("AI PLAN ERROR:", err);
+    res.status(500).json({ msg: "Failed to generate plan" });
   }
 });
 

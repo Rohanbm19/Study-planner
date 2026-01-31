@@ -1,66 +1,60 @@
 import { useState } from "react";
-import { generateAIPlan } from "../api/api";
+import axios from "axios";
 
 export default function Dashboard() {
   const [topic, setTopic] = useState("");
-  const [aiPlan, setAiPlan] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [plan, setPlan] = useState("");
   const [error, setError] = useState("");
 
   const generate = async () => {
-    if (!topic) {
-      alert("Please enter a topic");
-      return;
-    }
-
     try {
-      setLoading(true);
       setError("");
+      setPlan("");
 
-      const res = await generateAIPlan(topic);
+      // ✅ GET TOKEN FROM LOCAL STORAGE
+      const token = localStorage.getItem("token");
 
-      // 🔴 THIS matches your Postman response
-      setAiPlan(res.data.plan);
+      if (!token) {
+        setError("You are not logged in");
+        return;
+      }
+
+      // ✅ CALL BACKEND WITH AUTH HEADER
+      const res = await axios.post(
+        "http://localhost:5000/api/ai/plan",
+        { topic },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // ✅ SET PLAN
+      setPlan(res.data.plan);
     } catch (err) {
-      console.error(err);
+      console.error(err.response?.data || err.message);
       setError("Failed to generate plan");
-    } finally {
-      setLoading(false);
     }
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>📘 AI Study Planner</h1>
+    <div style={{ padding: 20 }}>
+      <h2>AI Study Planner</h2>
 
       <input
-        type="text"
-        placeholder="Enter subject (e.g. Operating Systems)"
         value={topic}
         onChange={(e) => setTopic(e.target.value)}
-        style={{ padding: "8px", width: "300px" }}
+        placeholder="Enter topic"
       />
 
-      <br /><br />
+      <br />
+      <br />
 
-      <button onClick={generate} disabled={loading}>
-        {loading ? "Generating..." : "Generate AI Plan"}
-      </button>
+      <button onClick={generate}>Generate AI Plan</button>
 
       {error && <p style={{ color: "red" }}>{error}</p>}
-
-      {aiPlan && (
-        <pre
-          style={{
-            marginTop: "20px",
-            background: "#f4f4f4",
-            padding: "15px",
-            whiteSpace: "pre-wrap"
-          }}
-        >
-          {aiPlan}
-        </pre>
-      )}
+      {plan && <pre>{plan}</pre>}
     </div>
   );
 }
