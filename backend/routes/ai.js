@@ -1,10 +1,10 @@
 const express = require("express");
-const OpenAI = require("openai");
+const Groq = require("groq-sdk");
 
 const router = express.Router();
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY,
 });
 
 router.post("/plan", async (req, res) => {
@@ -15,12 +15,12 @@ router.post("/plan", async (req, res) => {
       return res.status(400).json({ msg: "Topic is required" });
     }
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+    const completion = await groq.chat.completions.create({
+      model: "llama-3.1-8b-instant", // ✅ VALID MODEL
       messages: [
         {
           role: "user",
-          content: `Create a 3-day study plan with dates and hours for: ${topic}`,
+          content: `Create a 3-day study plan with time slots for: ${topic}`,
         },
       ],
     });
@@ -28,8 +28,8 @@ router.post("/plan", async (req, res) => {
     res.json({
       plan: completion.choices[0].message.content,
     });
-  } catch (err) {
-    console.error("AI ERROR:", err.message);
+  } catch (error) {
+    console.error("AI ERROR:", error);
     res.status(500).json({ msg: "AI generation failed" });
   }
 });
