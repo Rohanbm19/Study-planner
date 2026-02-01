@@ -134,3 +134,11 @@ body {
 .plan-table tr:hover {
   background: #eef2ff;
 }
+
+.weeks-input {
+  width: 90px;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+}
