@@ -1,0 +1,57 @@
+/* Google Font */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
+
+.register-page {
+  min-height: 100vh;
+  background: #2563eb;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+.register-card {
+  background: #ffffff;
+  width: 360px;
+  padding: 32px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+.register-card h2 {
+  margin-bottom: 24px;
+  font-weight: 600;
+}
+
+.register-card input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 14px;
+  font-size: 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+}
+
+.register-card button {
+  width: 100%;
+  padding: 12px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.register-card button:hover {
+  background: #1d4ed8;
+}
+
+.register-link {
+  margin-top: 16px;
+  display: block;
+  color: #2563eb;
+  text-decoration: none;
+  font-size: 14px;
+}
