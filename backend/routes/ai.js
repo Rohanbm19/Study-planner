@@ -1,63 +1,59 @@
 import express from "express";
-import auth from "../middleware/authMiddleware.js";
-import Plan from "../models/Plan.js";
 import Groq from "groq-sdk";
 
 const router = express.Router();
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
+// ⚠️ If API key missing, disable AI safely
+let groq = null;
+if (process.env.GROQ_API_KEY) {
+  groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+} else {
+  console.warn("⚠️ GROQ_API_KEY missing. AI plan disabled.");
+}
 
-router.post("/plan", auth, async (req, res) => {
+router.post("/plan", async (req, res) => {
   try {
+    if (!groq) {
+      return res.status(500).json({ error: "AI not configured" });
+    }
+
     const { topic, weeks } = req.body;
 
-    if (!topic || typeof topic !== "string") {
-      return res.status(400).json({ msg: "Valid topic is required" });
+    if (!topic) {
+      return res.status(400).json({ error: "Topic is required" });
     }
 
     const totalWeeks = Number(weeks) || 4;
 
     const prompt = `
-Create a WEEKLY STUDY PLAN for ${totalWeeks} weeks.
+Create a STUDY TIMETABLE for ${totalWeeks} weeks.
 
-Format EXACTLY like this:
+Topic: ${topic}
+
+Format EXACTLY like this (no markdown, no extra text):
 
 Week 1:
-Topic:
-Subtopics:
-Daily Tasks:
-Hours per day:
+- Day 1: ...
+- Day 2: ...
+- Day 3: ...
 
-Topic to study: ${topic}
+Week 2:
+- Day 1: ...
+- Day 2: ...
+- Day 3: ...
 `;
 
     const completion = await groq.chat.completions.create({
       model: "llama-3.1-8b-instant",
-      messages: [
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
+      messages: [{ role: "user", content: prompt }],
     });
 
     const planText = completion.choices[0].message.content;
 
-    const savedPlan = await Plan.create({
-      userId: req.userId,
-      topic,
-      planText,
-    });
-
-    res.json({
-      planText,
-      planId: savedPlan._id,
-    });
-  } catch (err) {
-    console.error("AI PLAN ERROR:", err);
-    res.status(500).json({ msg: "Failed to generate plan" });
+    res.json({ planText });
+  } catch (error) {
+    console.error("AI PLAN ERROR:", error);
+    res.status(500).json({ error: "Failed to generate plan" });
   }
 });
 

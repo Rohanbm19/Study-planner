@@ -226,3 +226,12 @@ body {
   background: #1e293b;
   color: #e5e7eb;
 }
+
+.plan-output {
+  margin-top: 15px;
+  background: #f4f4f4;
+  padding: 15px;
+  border-radius: 8px;
+  white-space: pre-wrap;
+  font-family: monospace;
+}

@@ -1,4 +1,4 @@
-const generateSchedule = (subjects) => {
+export const generateSchedule = (subjects) => {
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   const times = [
     '09:00-10:00',
@@ -29,7 +29,7 @@ const generateSchedule = (subjects) => {
   return schedule;
 };
 
-const optimizeSchedule = (subjects, userSettings) => {
+export const optimizeSchedule = (subjects, userSettings) => {
   // AI logic to optimize schedule based on user settings
   const studyDuration = userSettings.studyDuration || 50;
   const breakDuration = userSettings.breakDuration || 10;
