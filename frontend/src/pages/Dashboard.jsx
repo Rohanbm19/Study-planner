@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { generateAIPlan } from "../api/api";
 import Todo from "../components/Todo/Todo";
+import Profile from "../components/Profile/Profile";
 import "./Dashboard.css";
+import AIChat from "../components/AIChat/AIChat";
 
 export default function Dashboard() {
   const [topic, setTopic] = useState("");
@@ -9,94 +11,34 @@ export default function Dashboard() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showProfile, setShowProfile] = useState(false);
 
-  const generate = async () => {
-    if (!topic.trim()) {
-      setError("Please enter a topic");
-      return;
-    }
+  const userName = localStorage.getItem("userName") || "Student";
 
-    try {
-      setLoading(true);
-      setError("");
-      setRows([]);
-
-      const res = await generateAIPlan(topic, weeks);
-      const rawText = res?.data?.planText;
-
-      if (!rawText) {
-        setError("No response from AI");
-        return;
-      }
-
-      const cleaned = rawText.replace(/\*\*/g, "").trim();
-
-      const weekBlocks = cleaned.match(
-        /Week \d+:[\s\S]*?(?=Week \d+:|$)/g
-      );
-
-      if (!weekBlocks) {
-        setError("Invalid AI format");
-        return;
-      }
-
-      const parsed = weekBlocks.map((block, index) => {
-        const getValue = (label) => {
-          const lines = block.split("\n");
-          const start = lines.findIndex((l) =>
-            l.toLowerCase().startsWith(label)
-          );
-          if (start === -1) return "";
-
-          let value = lines[start].split(":").slice(1).join(":").trim();
-
-          for (let i = start + 1; i < lines.length; i++) {
-            if (
-              lines[i].toLowerCase().startsWith("topic") ||
-              lines[i].toLowerCase().startsWith("subtopics") ||
-              lines[i].toLowerCase().startsWith("daily tasks") ||
-              lines[i].toLowerCase().startsWith("hours")
-            ) {
-              break;
-            }
-            value += " " + lines[i].replace(/^-/, "").trim();
-          }
-
-          return value.trim();
-        };
-
-        return {
-          week: `Week ${index + 1}`,
-          topic: getValue("topic"),
-          subtopics: getValue("subtopics"),
-          tasks: getValue("daily tasks"),
-          hours: getValue("hours"),
-        };
-      });
-
-      setRows(parsed);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to generate plan");
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    const dark = localStorage.getItem("darkMode") === "true";
+    document.body.classList.toggle("dark", dark);
+  }, []);
 
   return (
     <div className="dashboard-container">
       {/* ===== HEADER ===== */}
       <header className="dashboard-header">
         <div className="header-title">STUDY - PLANNER</div>
-        <div className="profile-area">
-          <span className="profile-text">Profile</span>
+
+        <div
+          className="profile-area"
+          onClick={() => setShowProfile(!showProfile)}
+        >
+          <span className="profile-text">{userName}</span>
           <div className="profile-avatar"></div>
         </div>
+
+        {showProfile && <Profile close={() => setShowProfile(false)} />}
       </header>
 
       {/* ===== MAIN ===== */}
       <main className="dashboard-main">
-        {/* LEFT → STUDY PLANNER */}
         <section className="study-planner">
           <h3>Study Time Table</h3>
 
@@ -113,44 +55,15 @@ export default function Dashboard() {
               value={weeks}
               onChange={(e) => setWeeks(Number(e.target.value))}
               className="weeks-input"
-              placeholder="Weeks"
             />
-            <button onClick={generate} disabled={loading}>
+            <button disabled={loading}>
               {loading ? "Generating..." : "Generate"}
             </button>
           </div>
 
           {error && <p className="dashboard-error">{error}</p>}
-
-          {rows.length > 0 && (
-            <div className="plan-table-wrapper">
-              <table className="plan-table">
-                <thead>
-                  <tr>
-                    <th>Week</th>
-                    <th>Topic</th>
-                    <th>Subtopics</th>
-                    <th>Daily Tasks</th>
-                    <th>Hours / Day</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((r, i) => (
-                    <tr key={i}>
-                      <td>{r.week}</td>
-                      <td>{r.topic}</td>
-                      <td>{r.subtopics}</td>
-                      <td>{r.tasks}</td>
-                      <td>{r.hours}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
         </section>
 
-        {/* RIGHT → TODO + AI CHAT */}
         <aside className="right-panel">
           <div className="todo-box">
             <h3>📝 Todo List</h3>
@@ -159,15 +72,12 @@ export default function Dashboard() {
 
           <div className="ai-chat-box">
             <h3>🤖 AI Chat Assistant</h3>
-            <p>Coming soon…</p>
+            <AIChat />
           </div>
         </aside>
       </main>
 
-      {/* ===== FOOTER ===== */}
-      <footer className="dashboard-footer">
-        © 2026 Study Planner
-      </footer>
+      <footer className="dashboard-footer">© 2026 Study Planner</footer>
     </div>
   );
 }

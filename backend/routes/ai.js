@@ -1,8 +1,9 @@
-const express = require("express");
+import express from "express";
+import auth from "../middleware/authMiddleware.js";
+import Plan from "../models/Plan.js";
+import Groq from "groq-sdk";
+
 const router = express.Router();
-const auth = require("../middleware/authMiddleware");
-const Plan = require("../models/Plan");
-const Groq = require("groq-sdk");
 
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
@@ -18,7 +19,6 @@ router.post("/plan", auth, async (req, res) => {
 
     const totalWeeks = Number(weeks) || 4;
 
-    // ✅ CORRECT PROMPT
     const prompt = `
 Create a WEEKLY STUDY PLAN for ${totalWeeks} weeks.
 
@@ -45,10 +45,9 @@ Topic to study: ${topic}
 
     const planText = completion.choices[0].message.content;
 
-    // ✅ SAVE CLEAN DATA
     const savedPlan = await Plan.create({
       userId: req.userId,
-      topic: topic, // STRING ONLY
+      topic,
       planText,
     });
 
@@ -56,11 +55,10 @@ Topic to study: ${topic}
       planText,
       planId: savedPlan._id,
     });
-
   } catch (err) {
     console.error("AI PLAN ERROR:", err);
     res.status(500).json({ msg: "Failed to generate plan" });
   }
 });
 
-module.exports = router;
+export default router;

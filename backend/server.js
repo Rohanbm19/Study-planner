@@ -1,20 +1,25 @@
-const express = require("express");
-const cors = require("cors");
-require("dotenv").config();
+// backend/server.js
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import connectDB from "./db.js";
 
-const connectDB = require("./db");
+import authRoutes from "./routes/auth.js";
+// ❌ DO NOT IMPORT AI OR CHAT ROUTES
+
+dotenv.config();
 
 const app = express();
 
-connectDB(); // ✅ MUST BE HERE BEFORE ROUTES
+connectDB();
 
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/auth", require("./routes/auth"));
-app.use("/api/ai", require("./routes/ai"));
+// ✅ ONLY AUTH ROUTES
+app.use("/api/auth", authRoutes);
 
 const PORT = 5000;
 app.listen(PORT, () => {
-  console.log(`Server running on ${PORT}`);
+  console.log(`✅ Server running on port ${PORT}`);
 });

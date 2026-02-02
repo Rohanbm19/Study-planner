@@ -1,0 +1,126 @@
+.profile-card {
+  background: #ffffff;
+  padding: 18px;
+  border-radius: 14px;
+}
+
+.profile-card h3 {
+  margin-bottom: 16px;
+}
+
+.profile-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.profile-field input {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+}
+
+.profile-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+/* Toggle Switch */
+.switch {
+  position: relative;
+  width: 46px;
+  height: 24px;
+}
+
+.switch input {
+  display: none;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  background: #d1d5db;
+  border-radius: 34px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transition: 0.3s;
+}
+
+.slider:before {
+  content: "";
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+input:checked + .slider {
+  background: #2563eb;
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: #e5e7eb;
+  cursor: not-allowed;
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: 80px;
+  right: 30px;
+  width: 260px;
+  background: var(--card-bg);
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+}
+
+.profile-dropdown label {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.profile-dropdown input {
+  width: 100%;
+  padding: 10px;
+  margin: 6px 0 10px;
+}
+
+.profile-row {
+  display: flex;
+  justify-content: space-between;
+  margin: 12px 0;
+}
+
+.profile-dropdown button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+}
+
+.danger {
+  background: #dc2626;
+  color: white;
+}
+
+.logout {
+  background: transparent;
+  color: var(--text-muted);
+}

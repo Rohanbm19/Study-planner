@@ -18,3 +18,11 @@ export const registerUser = (data) => API.post("/auth/register", data);
 // ✅ FIXED PATH (remove extra /api)
 export const generateAIPlan = (topic, weeks) =>
   API.post("/ai/plan", { topic, weeks });
+
+
+export const sendChatMessage = (messages) => {
+  return axios.post("http://localhost:5000/api/chat", {
+    messages,
+  });
+};
+
