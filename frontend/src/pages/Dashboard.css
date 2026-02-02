@@ -235,3 +235,19 @@ body {
   white-space: pre-wrap;
   font-family: monospace;
 }
+
+.timetable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.timetable th,
+.timetable td {
+  border: 1px solid #ccc;
+  padding: 10px;
+}
+
+.timetable th {
+  background: #f4f4f4;
+}

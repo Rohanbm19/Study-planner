@@ -7,7 +7,7 @@ import "./Dashboard.css";
 export default function Dashboard() {
   const [topic, setTopic] = useState("");
   const [weeks, setWeeks] = useState(4);
-  const [plan, setPlan] = useState("");
+  const [rows, setRows] = useState([]); // ✅ FIX
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showProfile, setShowProfile] = useState(false);
@@ -15,13 +15,24 @@ export default function Dashboard() {
   const userName = localStorage.getItem("userName") || "Student";
 
   const handleGenerate = async () => {
-    setError("");
-    setPlan("");
-    setLoading(true);
+    if (!topic) {
+      setError("Please enter a topic");
+      return;
+    }
 
     try {
+      setLoading(true);
+      setError("");
+
       const res = await generateAIPlan(topic, weeks);
-      setPlan(res.data.planText);
+
+      // Convert text → rows
+      const lines = res.data.planText
+        .split("\n")
+        .map((l) => l.trim())
+        .filter(Boolean);
+
+      setRows(lines);
     } catch (err) {
       setError("Failed to generate timetable");
     } finally {
@@ -72,10 +83,38 @@ export default function Dashboard() {
 
           {error && <p className="dashboard-error">{error}</p>}
 
-          {plan && (
-            <pre className="plan-output">
-              {plan}
-            </pre>
+          {rows.length > 0 && (
+            <table className="timetable">
+              <thead>
+                <tr>
+                  <th>Day</th>
+                  <th>Study Plan</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row, index) => {
+                  if (row.startsWith("Week")) {
+                    return (
+                      <tr key={index}>
+                        <td colSpan="2">
+                          <strong>{row}</strong>
+                        </td>
+                      </tr>
+                    );
+                  }
+
+                  const parts = row.split(":");
+                  if (parts.length < 2) return null;
+
+                  return (
+                    <tr key={index}>
+                      <td>{parts[0]}</td>
+                      <td>{parts.slice(1).join(":")}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           )}
         </section>
 
