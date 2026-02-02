@@ -1,3 +1,25 @@
+body.dark {
+  background: #0f172a;
+  color: #e5e7eb;
+}
+
+body.dark .dashboard-header,
+body.dark .study-box,
+body.dark .todo-box,
+body.dark .chat-box,
+body.dark .profile-card {
+  background: #020617;
+  color: #e5e7eb;
+}
+
+body.dark table th {
+  background: #1e40af;
+}
+
+body.dark table td {
+  color: #e5e7eb;
+}
+
 .auth-box {
   max-width: 350px;
   margin: 80px auto;

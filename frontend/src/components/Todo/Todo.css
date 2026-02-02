@@ -1,0 +1,88 @@
+.todo-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* INPUT ROW */
+.todo-input-row {
+  display: flex;
+  gap: 10px;
+}
+
+.todo-input-row input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.todo-input-row input:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+.todo-input-row button {
+  padding: 10px 16px;
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.todo-input-row button:hover {
+  background: #1e40af;
+}
+
+/* LIST */
+.todo-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.todo-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #f9fafb;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.todo-list li label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.todo-list li.done span {
+  text-decoration: line-through;
+  color: #9ca3af;
+}
+
+/* DELETE */
+.delete-btn {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  color: #b91c1c;
+}
+
+/* EMPTY */
+.todo-empty {
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+}

@@ -1,20 +1,24 @@
-const express = require("express");
-const cors = require("cors");
-require("dotenv").config();
+import dotenv from "dotenv";
+dotenv.config();
 
-const connectDB = require("./db");
+import express from "express";
+import cors from "cors";
+import connectDB from "./db.js";
+import authRoutes from "./routes/auth.js";
+import aiRoutes from "./routes/ai.js";
+import chatRoutes from "./routes/chat.js";
+
+connectDB();
 
 const app = express();
-
-connectDB(); // ✅ MUST BE HERE BEFORE ROUTES
 
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/auth", require("./routes/auth"));
-app.use("/api/ai", require("./routes/ai"));
+app.use("/api/auth", authRoutes);
+app.use("/api/ai", aiRoutes);
+app.use("/api/chat", chatRoutes);
 
-const PORT = 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on ${PORT}`);
+app.listen(5000, () => {
+  console.log("✅ Server running on port 5000");
 });

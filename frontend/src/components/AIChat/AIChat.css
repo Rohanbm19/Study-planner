@@ -1,0 +1,28 @@
+.ai-chat-container {
+  border: 1px solid #ddd;
+  padding: 10px;
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+}
+
+.ai-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+
+.ai-chat-input {
+  display: flex;
+  gap: 8px;
+}
+
+.ai-chat-input input {
+  flex: 1;
+  padding: 8px;
+}
+
+.ai-chat-input button {
+  padding: 8px 12px;
+  cursor: pointer;
+}
