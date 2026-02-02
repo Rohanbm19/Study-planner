@@ -20,3 +20,6 @@ export const registerUser = (data) =>
 
 export const generateAIPlan = (topic, weeks) =>
   API.post("/ai/plan", { topic, weeks });
+
+export const sendChatMessage = (message) =>
+  API.post("/chat", { message });

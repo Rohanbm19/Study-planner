@@ -3,6 +3,7 @@ import { generateAIPlan } from "../api/api";
 import Todo from "../components/Todo/Todo";
 import Profile from "../components/Profile/Profile";
 import "./Dashboard.css";
+import AIChat from "../components/AIChat/AIChat";
 
 export default function Dashboard() {
   const [topic, setTopic] = useState("");
@@ -123,6 +124,11 @@ export default function Dashboard() {
             <h3>📝 Todo List</h3>
             <Todo />
           </div>
+          <div className="ai-chat-box">
+  <h3>🤖 AI Study Assistant</h3>
+  <AIChat />
+</div>
+
         </aside>
       </main>
 
