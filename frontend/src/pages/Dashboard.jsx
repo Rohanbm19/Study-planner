@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { generateAIPlan } from "../api/api";
+import Todo from "../components/Todo/Todo";
 import "./Dashboard.css";
 
 export default function Dashboard() {
   const [topic, setTopic] = useState("");
-  const [weeks, setWeeks] = useState(4); // ✅ weeks state
+  const [weeks, setWeeks] = useState(4);
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -20,9 +21,7 @@ export default function Dashboard() {
       setError("");
       setRows([]);
 
-      // ✅ CORRECT API CALL (NO OBJECT WRAP)
       const res = await generateAIPlan(topic, weeks);
-
       const rawText = res?.data?.planText;
 
       if (!rawText) {
@@ -30,49 +29,41 @@ export default function Dashboard() {
         return;
       }
 
-      // -------- CLEAN --------
-      const cleaned = rawText
-        .replace(/\*\*/g, "")
-        .replace(/^- /gm, "")
-        .trim();
+      const cleaned = rawText.replace(/\*\*/g, "").trim();
 
-      // -------- SPLIT WEEKS --------
       const weekBlocks = cleaned.match(
         /Week \d+:[\s\S]*?(?=Week \d+:|$)/g
       );
 
       if (!weekBlocks) {
-        setError("AI response format invalid. Try again.");
+        setError("Invalid AI format");
         return;
       }
 
       const parsed = weekBlocks.map((block, index) => {
         const getValue = (label) => {
-  const lines = block.split("\n");
-  const startIndex = lines.findIndex((l) =>
-    l.toLowerCase().startsWith(label)
-  );
+          const lines = block.split("\n");
+          const start = lines.findIndex((l) =>
+            l.toLowerCase().startsWith(label)
+          );
+          if (start === -1) return "";
 
-  if (startIndex === -1) return "";
+          let value = lines[start].split(":").slice(1).join(":").trim();
 
-  let value = lines[startIndex].split(":").slice(1).join(":").trim();
+          for (let i = start + 1; i < lines.length; i++) {
+            if (
+              lines[i].toLowerCase().startsWith("topic") ||
+              lines[i].toLowerCase().startsWith("subtopics") ||
+              lines[i].toLowerCase().startsWith("daily tasks") ||
+              lines[i].toLowerCase().startsWith("hours")
+            ) {
+              break;
+            }
+            value += " " + lines[i].replace(/^-/, "").trim();
+          }
 
-  // collect bullet points below the label
-  for (let i = startIndex + 1; i < lines.length; i++) {
-    if (
-      lines[i].toLowerCase().startsWith("topic") ||
-      lines[i].toLowerCase().startsWith("subtopics") ||
-      lines[i].toLowerCase().startsWith("daily tasks") ||
-      lines[i].toLowerCase().startsWith("hours")
-    ) {
-      break;
-    }
-    value += " " + lines[i].replace(/^-/, "").trim();
-  }
-
-  return value.trim();
-};
-
+          return value.trim();
+        };
 
         return {
           week: `Week ${index + 1}`,
@@ -93,63 +84,90 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="dashboard-page">
-      <div className="dashboard-card">
-        <h1 className="dashboard-title">📘 AI Study Planner</h1>
-
-        {/* INPUT ROW */}
-        <div className="input-row">
-          <input
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-            placeholder="Enter topic (React, DBMS, Maths)"
-          />
-
-          {/* ✅ Weeks input */}
-          <input
-            type="number"
-            min="1"
-            max="12"
-            value={weeks}
-            onChange={(e) => setWeeks(Number(e.target.value))}
-            placeholder="Weeks"
-            className="weeks-input"
-          />
-
-          <button onClick={generate} disabled={loading}>
-            {loading ? "Generating..." : "Generate Plan"}
-          </button>
+    <div className="dashboard-container">
+      {/* ===== HEADER ===== */}
+      <header className="dashboard-header">
+        <div className="header-title">STUDY - PLANNER</div>
+        <div className="profile-area">
+          <span className="profile-text">Profile</span>
+          <div className="profile-avatar"></div>
         </div>
+      </header>
 
-        {error && <p className="dashboard-error">{error}</p>}
+      {/* ===== MAIN ===== */}
+      <main className="dashboard-main">
+        {/* LEFT → STUDY PLANNER */}
+        <section className="study-planner">
+          <h3>Study Time Table</h3>
 
-        {rows.length > 0 && (
-          <div className="plan-table-wrapper">
-            <table className="plan-table">
-              <thead>
-                <tr>
-                  <th>Week</th>
-                  <th>Topic</th>
-                  <th>Subtopics</th>
-                  <th>Daily Tasks</th>
-                  <th>Hours / Day</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row, i) => (
-                  <tr key={i}>
-                    <td>{row.week}</td>
-                    <td>{row.topic}</td>
-                    <td>{row.subtopics}</td>
-                    <td>{row.tasks}</td>
-                    <td>{row.hours}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="input-row">
+            <input
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              placeholder="Enter topic"
+            />
+            <input
+              type="number"
+              min="1"
+              max="12"
+              value={weeks}
+              onChange={(e) => setWeeks(Number(e.target.value))}
+              className="weeks-input"
+              placeholder="Weeks"
+            />
+            <button onClick={generate} disabled={loading}>
+              {loading ? "Generating..." : "Generate"}
+            </button>
           </div>
-        )}
-      </div>
+
+          {error && <p className="dashboard-error">{error}</p>}
+
+          {rows.length > 0 && (
+            <div className="plan-table-wrapper">
+              <table className="plan-table">
+                <thead>
+                  <tr>
+                    <th>Week</th>
+                    <th>Topic</th>
+                    <th>Subtopics</th>
+                    <th>Daily Tasks</th>
+                    <th>Hours / Day</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((r, i) => (
+                    <tr key={i}>
+                      <td>{r.week}</td>
+                      <td>{r.topic}</td>
+                      <td>{r.subtopics}</td>
+                      <td>{r.tasks}</td>
+                      <td>{r.hours}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+
+        {/* RIGHT → TODO + AI CHAT */}
+        <aside className="right-panel">
+          <div className="todo-box">
+            <h3>📝 Todo List</h3>
+            <Todo />
+          </div>
+
+          <div className="ai-chat-box">
+            <h3>🤖 AI Chat Assistant</h3>
+            <p>Coming soon…</p>
+          </div>
+        </aside>
+      </main>
+
+      {/* ===== FOOTER ===== */}
+      <footer className="dashboard-footer">
+        © 2026 Study Planner
+      </footer>
     </div>
   );
 }
